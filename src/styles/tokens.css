@@ -1,0 +1,46 @@
+/* Design tokens: single source for colour, type, spacing, radius and elevation. */
+:root {
+  /* Brand palette (agreed) */
+  --color-brand: #315744;          /* Forest Green: primary, navigation, headings, selected */
+  --color-brand-hover: #264636;
+  --color-brand-soft: #e4ede2;     /* light brand tint for icon tiles */
+  --color-bg: #fafaf6;             /* Warm off-white: main background */
+  --color-sage: #eaf1e9;           /* Soft sage: sidebar and secondary surfaces */
+  --color-yellow: #f3e8b2;         /* Soft yellow: helpful highlights */
+  --color-yellow-text: #4a3d08;
+  --color-danger: #b83a3a;         /* Muted red: SOS and genuinely urgent actions only */
+  --color-danger-hover: #9c2f2f;
+  --color-danger-soft: #fbeeee;
+  --color-surface: #ffffff;
+  --color-text: #26352b;           /* Dark readable text */
+
+  /* Neutrals derived from the palette */
+  --color-text-muted: #5b6b60;     /* about 6:1 on white */
+  --color-line: #e2eae0;           /* hairline borders */
+  --color-line-strong: #c9d6c6;    /* input borders */
+  --color-ink: #26352b;            /* destructive confirm button (neutral, not red) */
+  --color-focus: #1f5fbf;
+
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  --radius-xs: 8px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  --shadow-sm: 0 1px 2px rgba(29, 44, 34, 0.05);
+  --shadow-card: 0 1px 2px rgba(29, 44, 34, 0.04), 0 2px 8px rgba(29, 44, 34, 0.04);
+  --shadow-md: 0 8px 24px rgba(29, 44, 34, 0.12);
+
+  --touch-target: 44px;
+  --sidebar-width: 256px;
+  --header-height: 64px;
+  --bottom-nav-height: 68px;
+}
