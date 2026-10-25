@@ -48,10 +48,10 @@ const MAPS_TERM: Record<NearbyCategory | 'all', string> = {
 };
 
 const LOCATION_ERROR: Record<Exclude<LocationResult, { ok: true }>['reason'], string> = {
-  denied: 'Location permission was denied. Type a place name above instead.',
-  unsupported: 'This browser cannot share location. Type a place name above instead.',
-  insecure: 'Location needs a secure connection (HTTPS). Type a place name above instead.',
-  unavailable: 'Your location could not be determined. Type a place name above instead.',
+  denied: 'Location access is off. Type a place name above, or allow location in your browser settings.',
+  unsupported: 'This browser cannot share location. Type a place name above.',
+  insecure: 'Location works only on a secure (https) connection. Type a place name above.',
+  unavailable: 'We could not find your location. Type a place name above.',
   timeout: 'Finding your location took too long. Try again, or type a place name above.',
 };
 
@@ -65,8 +65,10 @@ function formatDistance(meters: number): string {
   return meters < 1000 ? `${Math.round(meters)} m` : `${(meters / 1000).toFixed(1)} km`;
 }
 
-function phoneDigits(phone: string): string {
-  return phone.replace(/[^\d+]/g, '');
+/** OSM phone fields can hold several numbers ("+91 1234; +91 5678"). Use the first one. */
+function firstPhone(phone: string): string {
+  const first = phone.split(/[;,/]/)[0] ?? '';
+  return first.replace(/[^\d+]/g, '');
 }
 
 export default function NearbyPage() {
@@ -83,8 +85,9 @@ export default function NearbyPage() {
   const [inputError, setInputError] = useState<string | null>(null);
   const [result, setResult] = useState<PlacesResult | null>(null);
   const [searching, setSearching] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
-  // Runs whenever the origin or the category changes, so chips and new searches both refresh results.
+  // Runs when the origin, category or a retry changes.
   useEffect(() => {
     if (!origin) return;
     let cancelled = false;
@@ -95,20 +98,23 @@ export default function NearbyPage() {
       .then((res) => {
         if (!cancelled) setResult(res);
       })
+      .catch(() => {
+        if (!cancelled) setResult({ status: 'error', message: 'Something went wrong while searching.' });
+      })
       .finally(() => {
         if (!cancelled) setSearching(false);
       });
     return () => {
       cancelled = true;
     };
-  }, [origin, category]);
+  }, [origin, category, attempt]);
 
   async function useMyLocation() {
     setBusy('location');
     setInputError(null);
     const res = await getCurrentPosition();
     setBusy(null);
-    if (res.ok) setOrigin({ lat: res.lat, lng: res.lng, label: 'your current location' });
+    if (res.ok) setOrigin({ lat: res.lat, lng: res.lng, label: 'your location' });
     else setInputError(LOCATION_ERROR[res.reason]);
   }
 
@@ -118,7 +124,7 @@ export default function NearbyPage() {
     setInputError(null);
     const res = await geocodePlace(placeText);
     setBusy(null);
-    if (res.ok) setOrigin({ lat: res.lat, lng: res.lng, label: res.label });
+    if (res.ok) setOrigin({ lat: res.lat, lng: res.lng, label: res.label.split(',')[0] });
     else setInputError(res.message);
   }
 
@@ -130,11 +136,11 @@ export default function NearbyPage() {
 
   return (
     <>
-      <PageHeading title="Nearby Help" description="Hospitals, pharmacies, garages, parking, hotels, restaurants and more, around any place you choose." />
+      <PageHeading title="Nearby Help" description="Hospitals, pharmacies, garages, parking, hotels and restaurants around you." />
 
       <Card>
         <form onSubmit={searchPlace} noValidate>
-          <Field id="place" label="Search a place or area" error={inputError ?? undefined} hint="For example a city, area or landmark.">
+          <Field id="place" label="Search a place or area" error={inputError ?? undefined}>
             {(p) => (
               <input
                 {...p}
@@ -155,7 +161,7 @@ export default function NearbyPage() {
           </div>
         </form>
 
-        <fieldset className="chip-group" style={{ marginTop: 'var(--space-4)' }}>
+        <fieldset className="chip-group nearby-chips">
           <legend className="sr-only">Category</legend>
           {CATEGORIES.map((c) => (
             <button
@@ -169,7 +175,6 @@ export default function NearbyPage() {
             </button>
           ))}
         </fieldset>
-        <p className="small muted">Your location is used only for this search and is not stored.</p>
       </Card>
 
       <Card>
@@ -181,7 +186,9 @@ export default function NearbyPage() {
                 <strong>{n.label}</strong>
                 {n.note && <div className="muted small">{n.note}</div>}
               </div>
-              <a className="btn btn--secondary" href={telLink(n.number)}>Call {n.number}</a>
+              <a className="btn btn--secondary" href={telLink(n.number)}>
+                Call {n.number}
+              </a>
             </li>
           ))}
         </ul>
@@ -189,48 +196,75 @@ export default function NearbyPage() {
 
       {!origin && (
         <EmptyState title="Choose where to search">
-          Type a place above and press Search, or use your location. Results show the nearest help within about {SEARCH_RADIUS_METERS / 1000} km.
+          Type a place above and press Search, or use your location. Results show help within about {SEARCH_RADIUS_METERS / 1000} km.
         </EmptyState>
       )}
 
       {origin && (
         <section aria-labelledby="results-h">
           <div className="section-head">
-            <h2 id="results-h">{activeLabel} near {origin.label}</h2>
-            <a className="small" href={mapsSearchLink(`${MAPS_TERM[category]} near ${origin.lat},${origin.lng}`)} target="_blank" rel="noopener noreferrer">
+            <h2 id="results-h">
+              {activeLabel} near {origin.label}
+            </h2>
+            <a
+              className="section-link"
+              href={mapsSearchLink(`${MAPS_TERM[category]} near ${origin.lat},${origin.lng}`)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Open in Maps
             </a>
           </div>
 
           {searching && <Spinner label="Searching nearby" />}
 
-          {result?.status === 'error' && <Notice tone="error" title="Search failed">{result.message}</Notice>}
+          {result?.status === 'error' && (
+            <Notice tone="error" title="Could not load results">
+              <p>{result.message}</p>
+              <div className="row-actions">
+                <Button variant="secondary" className="btn--sm" onClick={() => setAttempt((n) => n + 1)}>
+                  Try again
+                </Button>
+              </div>
+            </Notice>
+          )}
 
           {result?.status === 'ok' && result.places.length === 0 && (
-            <EmptyState title="Nothing found nearby">
-              No matching places within about {SEARCH_RADIUS_METERS / 1000} km in the map data. Try another category, or open Maps to search a wider area.
+            <EmptyState title="No results nearby">
+              Nothing matched within about {SEARCH_RADIUS_METERS / 1000} km. Try another category, or open Maps for a wider search.
             </EmptyState>
           )}
 
           {result?.status === 'ok' && result.places.length > 0 && (
-            <ul className="list">
+            <ul className="place-list">
               {result.places.map((p: Place) => (
-                <li key={p.id} className="list-item">
-                  <div>
-                    <strong>{p.name}</strong>{' '}
-                    <span className="badge">{CATEGORY_LABEL[p.category]}</span>
-                    <div className="muted small">{formatDistance(p.distanceMeters)} away{p.address ? ` · ${p.address}` : ''}</div>
-                    {p.phone && <div className="small"><a href={`tel:${phoneDigits(p.phone)}`}>{p.phone}</a></div>}
-                    {p.openingHours && <div className="small muted">Hours as recorded: {p.openingHours}</div>}
+                <li key={p.id} className="place-item">
+                  <div className="place-item__main">
+                    <div className="place-item__title">
+                      <strong>{p.name}</strong>
+                      <span className="badge">{CATEGORY_LABEL[p.category]}</span>
+                    </div>
+                    <div className="muted small">
+                      {formatDistance(p.distanceMeters)} away
+                      {p.address ? ` · ${p.address}` : ''}
+                    </div>
+                    {p.openingHours && <div className="muted small">Hours: {p.openingHours}</div>}
                   </div>
-                  <a
-                    className="btn btn--ghost"
-                    href={mapsDirectionsLink(`${p.lat},${p.lng}`, `${origin.lat},${origin.lng}`)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Directions
-                  </a>
+                  <div className="place-item__actions">
+                    {p.phone && (
+                      <a className="btn btn--secondary btn--sm" href={telLink(firstPhone(p.phone))}>
+                        Call
+                      </a>
+                    )}
+                    <a
+                      className="btn btn--primary btn--sm"
+                      href={mapsDirectionsLink(`${p.lat},${p.lng}`, `${origin.lat},${origin.lng}`)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Directions
+                    </a>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -238,10 +272,12 @@ export default function NearbyPage() {
         </section>
       )}
 
-      <Notice tone="info">
-        Listings come from public map data, which may be incomplete or out of date. Hours and availability are not guaranteed, so confirm before you go. For emergencies, call 112.
-      </Notice>
-      <p className="small muted attribution">Map data {OSM_ATTRIBUTION}</p>
+      <p className="attribution small muted">
+        Map data{' '}
+        <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">
+          {OSM_ATTRIBUTION}
+        </a>
+      </p>
     </>
   );
 }

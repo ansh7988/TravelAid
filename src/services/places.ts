@@ -136,8 +136,25 @@ async function runQuery(query: string): Promise<OverpassElement[]> {
   throw lastError;
 }
 
+/**
+ * Short-lived in-memory cache. Keeps repeat taps (and category switching back and forth)
+ * from re-querying the public Overpass servers. Keys use coordinates rounded to ~100 m.
+ */
+const CACHE_TTL_MS = 10 * 60 * 1000;
+const cache = new Map<string, { at: number; places: Place[] }>();
+
+function cacheKey(lat: number, lng: number, category: string): string {
+  return `${lat.toFixed(3)},${lng.toFixed(3)}:${category}`;
+}
+
 export const overpassProvider: PlacesProvider = {
   async search({ lat, lng, category }) {
+    const key = cacheKey(lat, lng, category);
+    const hit = cache.get(key);
+    if (hit && Date.now() - hit.at < CACHE_TTL_MS) {
+      return { status: 'ok', places: hit.places };
+    }
+
     const wanted: NearbyCategory[] = category === 'all' ? ALL_CATEGORIES : [category];
 
     let elements: OverpassElement[];
@@ -185,6 +202,7 @@ export const overpassProvider: PlacesProvider = {
       places.push(p);
     }
 
+    cache.set(key, { at: Date.now(), places });
     return { status: 'ok', places };
   },
 };

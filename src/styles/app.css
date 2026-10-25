@@ -354,6 +354,8 @@ fieldset { border: 0; padding: 0; margin: 0 0 var(--space-3); min-width: 0; }
 }
 .chip:hover { border-color: var(--color-brand); }
 .chip--on { background: var(--color-brand); border-color: var(--color-brand); color: #fff; }
+/* Category chips sit below the search buttons with clear space. */
+.nearby-chips { margin-top: var(--space-5); margin-bottom: 0; }
 
 /* ================= Notices, empty states, spinner ================= */
 .notice {
@@ -467,6 +469,26 @@ fieldset { border: 0; padding: 0; margin: 0 0 var(--space-3); min-width: 0; }
 }
 
 .attribution { margin-top: var(--space-3); }
+
+/* ================= Nearby results ================= */
+.place-list { list-style: none; margin: 0 0 var(--space-4); padding: 0; display: grid; gap: var(--space-2); }
+.place-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+}
+.place-item__main { display: grid; gap: 4px; min-width: 0; flex: 1 1 220px; }
+.place-item__main .small { overflow-wrap: anywhere; }
+.place-item__title { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.place-item__title strong { overflow-wrap: anywhere; }
+.place-item__title .badge { margin-left: 0; }
+.place-item__actions { display: flex; gap: var(--space-2); flex-shrink: 0; }
 
 /* ================= Home ================= */
 .home { display: grid; gap: var(--space-5); }
@@ -885,6 +907,10 @@ fieldset { border: 0; padding: 0; margin: 0 0 var(--space-3); min-width: 0; }
   .details dd { margin-bottom: var(--space-2); }
 
   .list-item { padding: var(--space-3) var(--space-4); }
+
+  .place-item { padding: var(--space-3) var(--space-4); }
+  .place-item__actions { width: 100%; }
+  .place-item__actions .btn { flex: 1 1 0; }
 
   .sos--compact .sos__main { padding: 0 10px; min-height: 36px; }
   .sos--compact .sos__label { font-size: 0.86rem; }

@@ -57,7 +57,7 @@ export default function EmergencyPage() {
         <h2>Call emergency services</h2>
         <p>Call <strong>{EMERGENCY_NUMBER}</strong> (India emergency number) if anyone is in danger.</p>
         <a className="sos__call sos__call--large" href={telLink(EMERGENCY_NUMBER)}>Call {EMERGENCY_NUMBER}</a>
-        <p className="small muted">This opens your phone's dialler. TravelAid cannot tell whether the call connects.</p>
+        <p className="small muted">Opens your phone's dialler.</p>
       </Card>
 
       <Card>
@@ -124,7 +124,7 @@ export default function EmergencyPage() {
           </ol>
         )}
         <Notice tone="info">
-          Nothing is sent automatically. WhatsApp and SMS open with this message so you can review and send it yourself. TravelAid cannot confirm delivery.
+          WhatsApp and SMS open with this message, so you can review it and send it yourself.
         </Notice>
       </Card>
     </>
