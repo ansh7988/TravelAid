@@ -6,8 +6,8 @@
 //  - Everything else (API calls, third-party maps, WhatsApp, tel:, sms:): NOT intercepted.
 // Personal, contact, trip, medical and location data lives in localStorage and is never cached here.
 
-const VERSION = 'travelaid-v1';
-const PRECACHE = ['/', '/offline.html', '/icons/icon.svg'];
+const VERSION = 'travelaid-v2';
+const PRECACHE = ['/', '/offline.html', '/icons/icon-192.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(VERSION).then((c) => c.addAll(PRECACHE)));

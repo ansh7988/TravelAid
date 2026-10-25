@@ -3,10 +3,22 @@
  * No API key is needed. Results come only from the map data itself. Nothing is invented.
  *
  * Attribution is required: "© OpenStreetMap contributors" is shown on the Nearby Help page.
- * Please keep usage light (one search per user action). For heavy use, host your own Overpass
+ * Keep usage light (one search per user action). For heavy use, host your own Overpass
  * instance or switch to a paid provider behind a server-side proxy.
  */
 import type { NearbyCategory } from '../types';
+
+export const ALL_CATEGORIES: NearbyCategory[] = [
+  'hospital',
+  'clinic',
+  'pharmacy',
+  'police',
+  'fuel',
+  'parking',
+  'repair',
+  'hotel',
+  'restaurant',
+];
 
 export interface Place {
   id: string;
@@ -37,10 +49,28 @@ export interface PlacesProvider {
 export const SEARCH_RADIUS_METERS = 8000;
 export const OSM_ATTRIBUTION = '© OpenStreetMap contributors';
 
+/** Max results overall, and per category when showing "All help" so one type cannot crowd out others. */
+const MAX_RESULTS = 40;
+const MAX_PER_CATEGORY_WHEN_ALL = 8;
+
 const OVERPASS_ENDPOINTS = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',
 ];
+
+/** OpenStreetMap tag filters for each category. */
+const CATEGORY_FILTERS: Record<NearbyCategory, string[]> = {
+  hospital: ['nwr["amenity"="hospital"]'],
+  clinic: ['nwr["amenity"="clinic"]', 'nwr["amenity"="doctors"]'],
+  pharmacy: ['nwr["amenity"="pharmacy"]', 'nwr["shop"="chemist"]'],
+  police: ['nwr["amenity"="police"]'],
+  fuel: ['nwr["amenity"="fuel"]'],
+  parking: ['nwr["amenity"="parking"]'],
+  // Garages and puncture/tyre shops
+  repair: ['nwr["shop"="car_repair"]', 'nwr["shop"="tyres"]', 'nwr["amenity"="car_repair"]'],
+  hotel: ['nwr["tourism"~"^(hotel|motel|guest_house|hostel)$"]'],
+  restaurant: ['nwr["amenity"~"^(restaurant|fast_food|cafe)$"]'],
+};
 
 interface OverpassElement {
   type: 'node' | 'way' | 'relation';
@@ -62,12 +92,16 @@ export function distanceMeters(aLat: number, aLng: number, bLat: number, bLng: n
 }
 
 function categoryOf(tags: Record<string, string>): NearbyCategory | null {
-  const amenity = tags.amenity;
+  const { amenity, shop, tourism } = tags;
   if (amenity === 'hospital') return 'hospital';
   if (amenity === 'clinic' || amenity === 'doctors') return 'clinic';
-  if (amenity === 'pharmacy' || tags.shop === 'chemist') return 'pharmacy';
+  if (amenity === 'pharmacy' || shop === 'chemist') return 'pharmacy';
   if (amenity === 'police') return 'police';
   if (amenity === 'fuel') return 'fuel';
+  if (amenity === 'parking') return 'parking';
+  if (shop === 'car_repair' || shop === 'tyres' || amenity === 'car_repair') return 'repair';
+  if (tourism && ['hotel', 'motel', 'guest_house', 'hostel'].includes(tourism)) return 'hotel';
+  if (amenity && ['restaurant', 'fast_food', 'cafe'].includes(amenity)) return 'restaurant';
   return null;
 }
 
@@ -77,16 +111,10 @@ function formatAddress(tags: Record<string, string>): string | undefined {
   return parts.length ? parts.join(', ') : undefined;
 }
 
-function buildQuery(lat: number, lng: number): string {
+function buildQuery(lat: number, lng: number, categories: NearbyCategory[]): string {
   const around = `(around:${SEARCH_RADIUS_METERS},${lat},${lng})`;
-  return [
-    '[out:json][timeout:25];',
-    '(',
-    `nwr["amenity"~"^(hospital|clinic|doctors|pharmacy|police|fuel)$"]${around};`,
-    `nwr["shop"="chemist"]${around};`,
-    ');',
-    'out center tags 150;',
-  ].join('');
+  const filters = categories.flatMap((c) => CATEGORY_FILTERS[c]).map((f) => `${f}${around};`);
+  return ['[out:json][timeout:25];', '(', ...filters, ');', 'out center tags 300;'].join('');
 }
 
 async function runQuery(query: string): Promise<OverpassElement[]> {
@@ -110,9 +138,11 @@ async function runQuery(query: string): Promise<OverpassElement[]> {
 
 export const overpassProvider: PlacesProvider = {
   async search({ lat, lng, category }) {
+    const wanted: NearbyCategory[] = category === 'all' ? ALL_CATEGORIES : [category];
+
     let elements: OverpassElement[];
     try {
-      elements = await runQuery(buildQuery(lat, lng));
+      elements = await runQuery(buildQuery(lat, lng, wanted));
     } catch {
       return {
         status: 'error',
@@ -120,18 +150,17 @@ export const overpassProvider: PlacesProvider = {
       };
     }
 
-    const places: Place[] = [];
+    const candidates: Place[] = [];
     for (const el of elements) {
       const tags = el.tags ?? {};
       const cat = categoryOf(tags);
-      if (!cat) continue;
-      if (category !== 'all' && cat !== category) continue;
+      if (!cat || !wanted.includes(cat)) continue;
 
       const pLat = el.lat ?? el.center?.lat;
       const pLng = el.lon ?? el.center?.lon;
       if (pLat === undefined || pLng === undefined) continue;
 
-      places.push({
+      candidates.push({
         id: `${el.type}-${el.id}`,
         name: tags.name ?? tags['name:en'] ?? 'Name not listed in map data',
         category: cat,
@@ -144,8 +173,19 @@ export const overpassProvider: PlacesProvider = {
       });
     }
 
-    places.sort((a, b) => a.distanceMeters - b.distanceMeters);
-    return { status: 'ok', places: places.slice(0, 40) };
+    candidates.sort((a, b) => a.distanceMeters - b.distanceMeters);
+
+    const perCategory = new Map<NearbyCategory, number>();
+    const places: Place[] = [];
+    for (const p of candidates) {
+      if (places.length >= MAX_RESULTS) break;
+      const used = perCategory.get(p.category) ?? 0;
+      if (category === 'all' && used >= MAX_PER_CATEGORY_WHEN_ALL) continue;
+      perCategory.set(p.category, used + 1);
+      places.push(p);
+    }
+
+    return { status: 'ok', places };
   },
 };
 

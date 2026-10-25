@@ -4,6 +4,7 @@ import { SOSButton } from '../components/SOSButton';
 import { ProfileMenu } from '../components/ProfileMenu';
 import { Logo } from '../components/Logo';
 import { Icon, type IconName } from '../components/Icons';
+import { EMERGENCY_NUMBER, telLink } from '../services/links';
 
 interface NavItem {
   to: string;
@@ -12,24 +13,49 @@ interface NavItem {
   end?: boolean;
 }
 
-export const NAV_ITEMS: NavItem[] = [
-  { to: '/', label: 'Home', icon: 'home', end: true },
-  { to: '/nearby', label: 'Nearby Help', icon: 'pin' },
-  { to: '/emergency', label: 'Emergency Centre', icon: 'alert' },
-  { to: '/family', label: 'Family Safety', icon: 'shield' },
-  { to: '/messages', label: 'Messages', icon: 'chat' },
-  { to: '/trips', label: 'My Trips', icon: 'route' },
-  { to: '/profile', label: 'My Profile', icon: 'user' },
-  { to: '/settings', label: 'Settings', icon: 'sliders' },
-  { to: '/help', label: 'About & Help', icon: 'info' },
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
+
+export const NAV_SECTIONS: NavSection[] = [
+  {
+    title: 'Overview',
+    items: [
+      { to: '/', label: 'Home', icon: 'home', end: true },
+      { to: '/nearby', label: 'Nearby Help', icon: 'pin' },
+    ],
+  },
+  {
+    title: 'Safety',
+    items: [
+      { to: '/emergency', label: 'Emergency Centre', icon: 'alert' },
+      { to: '/family', label: 'Family Safety', icon: 'shield' },
+      { to: '/messages', label: 'Messages', icon: 'chat' },
+    ],
+  },
+  {
+    title: 'Travel',
+    items: [{ to: '/trips', label: 'My Trips', icon: 'route' }],
+  },
+  {
+    title: 'Account',
+    items: [
+      { to: '/profile', label: 'My Profile', icon: 'user' },
+      { to: '/settings', label: 'Settings', icon: 'sliders' },
+      { to: '/help', label: 'About & Help', icon: 'info' },
+    ],
+  },
 ];
+
+export const NAV_ITEMS: NavItem[] = NAV_SECTIONS.flatMap((s) => s.items);
 
 const BOTTOM_NAV: NavItem[] = [
   { to: '/', label: 'Home', icon: 'home', end: true },
   { to: '/nearby', label: 'Nearby', icon: 'pin' },
-  { to: '/trips', label: 'Trips', icon: 'route' },
   { to: '/family', label: 'Family', icon: 'users' },
-  { to: '/profile', label: 'Profile', icon: 'user' },
+  { to: '/messages', label: 'Messages', icon: 'chat' },
+  { to: '/trips', label: 'Trips', icon: 'route' },
 ];
 
 function titleFor(pathname: string): string {
@@ -57,31 +83,50 @@ export function AppLayout() {
 
   return (
     <div className="app">
-      <a href="#main" className="skip-link">Skip to content</a>
+      <a href="#main" className="skip-link">
+        Skip to content
+      </a>
 
       <aside id="sidebar" className={`sidebar ${drawerOpen ? 'sidebar--open' : ''}`} aria-label="Main navigation">
         <div className="brand">
-          <Logo size={34} />
+          <Logo />
         </div>
-        <nav aria-label="Sections">
-          <ul className="nav-list">
-            {NAV_ITEMS.map((item) => (
-              <li key={item.to}>
-                <NavLink to={item.to} end={item.end} className="nav-link">
-                  <Icon name={item.icon} size={18} />
-                  <span>{item.label}</span>
-                </NavLink>
-              </li>
-            ))}
-          </ul>
+
+        <nav aria-label="Sections" className="sidebar__nav">
+          {NAV_SECTIONS.map((section) => (
+            <div key={section.title} className="nav-group">
+              <p className="nav-group__title">{section.title}</p>
+              <ul className="nav-list">
+                {section.items.map((item) => (
+                  <li key={item.to}>
+                    <NavLink to={item.to} end={item.end} className="nav-link">
+                      <Icon name={item.icon} size={18} />
+                      <span>{item.label}</span>
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </nav>
+
         <div className="sidebar__foot">
-          <strong>Emergency: 112</strong>
-          TravelAid supports you but is not an emergency service. In danger, call 112.
+          <span className="sidebar__foot-icon" aria-hidden="true">
+            <Icon name="phone" size={16} />
+          </span>
+          <div className="sidebar__foot-text">
+            <strong>Emergency: {EMERGENCY_NUMBER}</strong>
+            <span>Works across India</span>
+          </div>
+          <a className="sidebar__foot-call" href={telLink(EMERGENCY_NUMBER)} aria-label={`Call ${EMERGENCY_NUMBER}`}>
+            Call
+          </a>
         </div>
       </aside>
 
-      {drawerOpen && <button type="button" className="scrim" aria-label="Close menu" onClick={() => setDrawerOpen(false)} />}
+      {drawerOpen && (
+        <button type="button" className="scrim" aria-label="Close menu" onClick={() => setDrawerOpen(false)} />
+      )}
 
       <div className="main-col">
         <header className="header">

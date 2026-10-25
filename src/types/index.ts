@@ -41,4 +41,13 @@ export interface Settings {
 
 export type EmergencyType = 'medical' | 'accident' | 'theft' | 'lost' | 'road' | 'other';
 
-export type NearbyCategory = 'hospital' | 'clinic' | 'pharmacy' | 'police' | 'fuel';
+export type NearbyCategory =
+  | 'hospital'
+  | 'clinic'
+  | 'pharmacy'
+  | 'police'
+  | 'fuel'
+  | 'parking'
+  | 'repair'
+  | 'hotel'
+  | 'restaurant';

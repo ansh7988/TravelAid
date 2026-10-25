@@ -1,13 +1,15 @@
 /* Design tokens: single source for colour, type, spacing, radius and elevation. */
 :root {
   /* Brand palette (agreed) */
-  --color-brand: #315744;          /* Forest Green: primary, navigation, headings, selected */
-  --color-brand-hover: #264636;
-  --color-brand-soft: #e4ede2;     /* light brand tint for icon tiles */
-  --color-bg: #fafaf6;             /* Warm off-white: main background */
-  --color-sage: #eaf1e9;           /* Soft sage: sidebar and secondary surfaces */
-  --color-yellow: #f3e8b2;         /* Soft yellow: helpful highlights */
-  --color-yellow-text: #4a3d08;
+  /* Brand palette, sampled from the TravelAid logo artwork */
+  --color-brand: #0c3824;          /* Logo deep green: primary, navigation, headings, selected */
+  --color-brand-hover: #082a1b;
+  --color-brand-soft: #e3eee6;     /* light green tint for icon tiles */
+  --color-accent: #d49424;         /* Logo gold: active markers and small highlights */
+  --color-bg: #fdfbf2;             /* Logo cream: main background */
+  --color-sage: #eef3e8;           /* Soft sage-cream: sidebar and secondary surfaces */
+  --color-yellow: #f7e7b4;         /* Light gold: helpful highlights */
+  --color-yellow-text: #5c4308;
   --color-danger: #b83a3a;         /* Muted red: SOS and genuinely urgent actions only */
   --color-danger-hover: #9c2f2f;
   --color-danger-soft: #fbeeee;

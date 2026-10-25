@@ -1,14 +1,15 @@
 {
-  "name": "TravelAid — Smart Travel Safety",
+  "name": "TravelAid: Travel Safe. Always.",
   "short_name": "TravelAid",
   "description": "Find nearby help, reach emergency services and keep trusted family informed.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#FAFAF6",
-  "theme_color": "#315744",
+  "background_color": "#FDFBF2",
+  "theme_color": "#0C3824",
   "icons": [
-    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
   ]
 }

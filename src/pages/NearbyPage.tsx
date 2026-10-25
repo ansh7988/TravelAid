@@ -13,8 +13,12 @@ const CATEGORIES: { value: NearbyCategory | 'all'; label: string }[] = [
   { value: 'hospital', label: 'Hospitals' },
   { value: 'clinic', label: 'Clinics' },
   { value: 'pharmacy', label: 'Pharmacies' },
-  { value: 'police', label: 'Police' },
+  { value: 'repair', label: 'Garage & puncture' },
+  { value: 'parking', label: 'Parking' },
+  { value: 'hotel', label: 'Hotels' },
+  { value: 'restaurant', label: 'Restaurants' },
   { value: 'fuel', label: 'Fuel stations' },
+  { value: 'police', label: 'Police' },
 ];
 
 const CATEGORY_LABEL: Record<NearbyCategory, string> = {
@@ -23,6 +27,24 @@ const CATEGORY_LABEL: Record<NearbyCategory, string> = {
   pharmacy: 'Pharmacy',
   police: 'Police station',
   fuel: 'Fuel station',
+  parking: 'Parking',
+  repair: 'Garage / puncture',
+  hotel: 'Hotel',
+  restaurant: 'Restaurant',
+};
+
+/** Words used when opening the same search in Google Maps. */
+const MAPS_TERM: Record<NearbyCategory | 'all', string> = {
+  all: 'help',
+  hospital: 'hospital',
+  clinic: 'clinic',
+  pharmacy: 'pharmacy',
+  police: 'police station',
+  fuel: 'petrol pump',
+  parking: 'parking',
+  repair: 'puncture repair garage',
+  hotel: 'hotel',
+  restaurant: 'restaurant',
 };
 
 const LOCATION_ERROR: Record<Exclude<LocationResult, { ok: true }>['reason'], string> = {
@@ -49,7 +71,11 @@ function phoneDigits(phone: string): string {
 
 export default function NearbyPage() {
   const [params, setParams] = useSearchParams();
-  const category = (params.get('category') as NearbyCategory | 'all') || 'all';
+  const requested = params.get('category');
+  const category: NearbyCategory | 'all' =
+    requested && Object.prototype.hasOwnProperty.call(CATEGORY_LABEL, requested)
+      ? (requested as NearbyCategory)
+      : 'all';
 
   const [placeText, setPlaceText] = useState('');
   const [origin, setOrigin] = useState<Origin | null>(null);
@@ -104,7 +130,7 @@ export default function NearbyPage() {
 
   return (
     <>
-      <PageHeading title="Nearby Help" description="Find hospitals, clinics, pharmacies, police and fuel stations around you." />
+      <PageHeading title="Nearby Help" description="Hospitals, pharmacies, garages, parking, hotels, restaurants and more, around any place you choose." />
 
       <Card>
         <form onSubmit={searchPlace} noValidate>
@@ -171,7 +197,7 @@ export default function NearbyPage() {
         <section aria-labelledby="results-h">
           <div className="section-head">
             <h2 id="results-h">{activeLabel} near {origin.label}</h2>
-            <a className="small" href={mapsSearchLink(`${category === 'all' ? 'hospital' : category} near ${origin.lat},${origin.lng}`)} target="_blank" rel="noopener noreferrer">
+            <a className="small" href={mapsSearchLink(`${MAPS_TERM[category]} near ${origin.lat},${origin.lng}`)} target="_blank" rel="noopener noreferrer">
               Open in Maps
             </a>
           </div>

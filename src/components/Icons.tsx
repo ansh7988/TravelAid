@@ -13,7 +13,10 @@ export type IconName =
   | 'sliders'
   | 'info'
   | 'menu'
-  | 'alert';
+  | 'alert'
+  | 'hands'
+  | 'phone'
+  | 'plus';
 
 /** Consistent 1.8px line icons, drawn on a 24px grid. Colour follows the surrounding text. */
 const PATHS: Record<IconName, ReactNode> = {
@@ -69,6 +72,17 @@ const PATHS: Record<IconName, ReactNode> = {
     </>
   ),
   menu: <path d="M4 7h16M4 12h16M4 17h16" />,
+  phone: (
+    <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z" />
+  ),
+  plus: <path d="M12 5v14M5 12h14" />,
+  hands: (
+    <>
+      <path d="M12 3v5M9.5 5.5h5" />
+      <path d="M3 13.5 6 10.5M21 13.5 18 10.5" />
+      <path d="M3 13.5c1.8 4.2 5 6 9 6s7.2-1.8 9-6" />
+    </>
+  ),
   alert: (
     <>
       <path d="M12 9v4" />

@@ -16,9 +16,9 @@ export function MessagingLayout() {
   return (
     <>
       <PageHeading title="Messages" description="Private chats and family groups." />
-      <Notice tone="warning" title="Prototype: nothing is sent to other people yet">
-        Chats, connections and group members need the accounts backend, which is not connected. End-to-end encryption is NOT YET IMPLEMENTED, so do not treat anything here as private.
-      </Notice>
+      <p className="privacy-note">
+        Saved on this device only. End-to-end encryption is not yet in place, so don't share sensitive details here.
+      </p>
       <nav className="msg-tabs" aria-label="Messaging sections">
         {TABS.map((t) => (
           <NavLink key={t.to} to={t.to} end={t.end}>
