@@ -1,34 +1,39 @@
 /* Design tokens: single source for colour, type, spacing, radius and elevation. */
 :root {
-  /* Brand palette (agreed) */
-  /* Brand palette, sampled from the TravelAid logo artwork */
-  --color-brand: #0c3824;          /* Logo deep green: primary, navigation, headings, selected */
-  --color-brand-hover: #082a1b;
-  --color-brand-soft: #e3eee6;     /* light green tint for icon tiles */
-  --color-accent: #d49424;         /* Logo gold: active markers and small highlights */
-  --color-bg: #fdfbf2;             /* Logo cream: main background */
-  --color-sage: #eef3e8;           /* Soft sage-cream: sidebar and secondary surfaces */
-  --color-yellow: #f7e7b4;         /* Light gold: helpful highlights */
-  --color-yellow-text: #5c4308;
-  --color-danger: #b83a3a;         /* Muted red: SOS and genuinely urgent actions only */
-  --color-danger-hover: #9c2f2f;
-  --color-danger-soft: #fbeeee;
+  /* Brand palette: deep navy primary on cool light-blue surfaces */
+  --color-brand: #0a4595;          /* Primary: buttons, active navigation, links */
+  --color-brand-hover: #07357a;
+  --color-brand-bright: #1463c9;   /* Eyebrows, icons and small highlights */
+  --color-brand-soft: #e8f1fc;     /* Light blue tint for icon tiles and pills */
+  --color-accent: #1463c9;         /* Active markers and selection rings */
+  --color-bg: #f5f9fe;             /* Main background */
+  --color-hero: #eaf3fd;           /* Hero bands */
+  --color-sage: #f0f6fd;           /* Secondary surfaces and hovers */
+  --color-yellow: #fff3d6;         /* Badges */
+  --color-yellow-text: #7a5300;
+  --color-danger: #dc2626;         /* SOS and genuinely urgent actions only */
+  --color-danger-hover: #b91c1c;
+  --color-danger-soft: #fef1f1;
   --color-surface: #ffffff;
-  --color-text: #26352b;           /* Dark readable text */
+  --color-heading: #0b1424;        /* Near-black headings */
+  --color-text: #1e293b;
+  --color-topbar: #0b111d;         /* Dark utility bar */
 
-  /* Neutrals derived from the palette */
-  --color-text-muted: #5b6b60;     /* about 6:1 on white */
-  --color-line: #e2eae0;           /* hairline borders */
-  --color-line-strong: #c9d6c6;    /* input borders */
-  --color-ink: #26352b;            /* destructive confirm button (neutral, not red) */
-  --color-focus: #1f5fbf;
+  /* Neutrals */
+  --color-text-muted: #5f6b7c;
+  --color-line: #e4ecf6;
+  --color-line-strong: #cfdbeb;
+  --color-ink: #1e293b;            /* destructive confirm button (neutral, not red) */
+  --color-focus: #1463c9;
 
   --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
   --radius-xs: 8px;
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 18px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 32px;
+  --radius-pill: 999px;
 
   --space-1: 4px;
   --space-2: 8px;
@@ -36,13 +41,17 @@
   --space-4: 16px;
   --space-5: 24px;
   --space-6: 32px;
+  --space-7: 48px;
 
-  --shadow-sm: 0 1px 2px rgba(29, 44, 34, 0.05);
-  --shadow-card: 0 1px 2px rgba(29, 44, 34, 0.04), 0 2px 8px rgba(29, 44, 34, 0.04);
-  --shadow-md: 0 8px 24px rgba(29, 44, 34, 0.12);
+  --shadow-sm: 0 1px 2px rgba(15, 40, 80, 0.05);
+  --shadow-card: 0 1px 2px rgba(15, 40, 80, 0.04), 0 8px 24px rgba(15, 40, 80, 0.05);
+  --shadow-md: 0 18px 48px rgba(15, 40, 80, 0.14);
+  --shadow-brand: 0 10px 24px rgba(10, 69, 149, 0.24);
 
   --touch-target: 44px;
-  --sidebar-width: 256px;
-  --header-height: 64px;
+  --sidebar-width: 280px;
+  --topbar-height: 40px;
+  --header-height: 76px;
   --bottom-nav-height: 68px;
+  --content-width: 1200px;
 }

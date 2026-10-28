@@ -72,22 +72,42 @@ export default function HomePage() {
 
   return (
     <div className="home">
-      <header className="home__intro">
-        <h1>{firstName ? `Hello, ${firstName}` : 'Welcome to TravelAid'}</h1>
-        <p>Get help quickly, and keep the people you trust informed.</p>
-      </header>
+      <section className="hero" aria-labelledby="hero-h">
+        <div className="hero__copy">
+          <span className="eyebrow-pill">
+            <Icon name="shield" size={14} />
+            {firstName ? `Welcome back, ${firstName}` : 'Travel safe, always'}
+          </span>
+          <h1 id="hero-h" className="hero__title">
+            Help on the road<span className="hero__cross" aria-hidden="true" />
+            <br />
+            <span className="hero__title-light">wherever</span> you are
+          </h1>
+          <p className="hero__lead">
+            Find hospitals, pharmacies and police nearby, reach emergency services in one tap, and keep the people
+            you trust informed while you travel.
+          </p>
+          <div className="hero__actions">
+            <LinkButton to="/nearby" variant="primary" className="btn--lg">
+              <Icon name="pin" size={18} />
+              Find nearby help
+            </LinkButton>
+            <LinkButton to="/emergency" variant="secondary" className="btn--lg">
+              Emergency Centre
+            </LinkButton>
+          </div>
+        </div>
 
-      <section className="emergency-panel" aria-labelledby="emergency-h">
-        <div className="emergency-panel__copy">
+        <div className="hero__panel emergency-panel" aria-labelledby="emergency-h">
           <span className="emergency-panel__icon" aria-hidden="true">
             <Icon name="hands" size={26} />
           </span>
-          <div>
+          <div className="emergency-panel__copy">
             <h2 id="emergency-h">Need urgent help?</h2>
             <p>Open the Emergency Centre for clear steps, or call {EMERGENCY_NUMBER} directly.</p>
           </div>
+          <SOSButton />
         </div>
-        <SOSButton />
       </section>
 
       <section className="home__stats" aria-label="Your safety summary">
@@ -130,8 +150,9 @@ export default function HomePage() {
       )}
 
       <section className="home__section" aria-labelledby="quick-h">
-        <div className="section-head">
-          <h2 id="quick-h">Quick access</h2>
+        <div className="section-head section-head--stacked">
+          <span className="eyebrow">Quick access</span>
+          <h2 id="quick-h">Everything you need, one tap away</h2>
         </div>
         <ul className="quick-tiles">
           {QUICK.map((q) => (
@@ -142,6 +163,9 @@ export default function HomePage() {
                 </span>
                 <span className="quick-tile__title">{q.title}</span>
                 <span className="quick-tile__text">{q.text}</span>
+                <span className="quick-tile__more" aria-hidden="true">
+                  Open <span className="quick-tile__arrow">→</span>
+                </span>
               </Link>
             </li>
           ))}
@@ -150,7 +174,10 @@ export default function HomePage() {
 
       <section className="home__section" aria-labelledby="trip-h">
         <div className="section-head">
-          <h2 id="trip-h">Trips</h2>
+          <div>
+            <span className="eyebrow">Your journeys</span>
+            <h2 id="trip-h">Trips</h2>
+          </div>
           <Link className="section-link" to="/trips">
             All trips
           </Link>

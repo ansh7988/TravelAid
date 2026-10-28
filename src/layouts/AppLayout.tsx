@@ -50,6 +50,9 @@ export const NAV_SECTIONS: NavSection[] = [
 
 export const NAV_ITEMS: NavItem[] = NAV_SECTIONS.flatMap((s) => s.items);
 
+// Desktop top navigation: everything except Account, which lives in the profile menu.
+const TOP_NAV: NavItem[] = NAV_SECTIONS.filter((s) => s.title !== 'Account').flatMap((s) => s.items);
+
 const BOTTOM_NAV: NavItem[] = [
   { to: '/', label: 'Home', icon: 'home', end: true },
   { to: '/nearby', label: 'Nearby', icon: 'pin' },
@@ -58,15 +61,9 @@ const BOTTOM_NAV: NavItem[] = [
   { to: '/trips', label: 'Trips', icon: 'route' },
 ];
 
-function titleFor(pathname: string): string {
-  const match = NAV_ITEMS.find((n) => (n.end ? pathname === n.to : pathname.startsWith(n.to)));
-  return match?.label ?? 'TravelAid';
-}
-
 export function AppLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const location = useLocation();
-  const title = titleFor(location.pathname);
 
   // Close the drawer whenever the route changes.
   useEffect(() => setDrawerOpen(false), [location.pathname]);
@@ -129,22 +126,49 @@ export function AppLayout() {
       )}
 
       <div className="main-col">
-        <header className="header">
-          <button
-            type="button"
-            className="icon-btn menu-btn"
-            aria-label="Open menu"
-            aria-expanded={drawerOpen}
-            aria-controls="sidebar"
-            onClick={() => setDrawerOpen(true)}
-          >
-            <Icon name="menu" size={20} />
-          </button>
-          <h2 className="header__title">{title}</h2>
-          <div className="header__sos">
-            <SOSButton compact />
+        <div className="topbar">
+          <div className="topbar__inner">
+            <span className="topbar__item">
+              <Icon name="phone" size={13} />
+              Emergency: <strong>{EMERGENCY_NUMBER}</strong>
+            </span>
+            <span className="topbar__sep" aria-hidden="true" />
+            <span className="topbar__item">Works across India, 24/7</span>
+            <span className="topbar__sep" aria-hidden="true" />
+            <span className="topbar__item">Your data stays on this device</span>
+            <a className="topbar__call" href={telLink(EMERGENCY_NUMBER)}>
+              Call {EMERGENCY_NUMBER}
+            </a>
           </div>
-          <ProfileMenu />
+        </div>
+
+        <header className="header">
+          <div className="header__inner">
+            <button
+              type="button"
+              className="icon-btn menu-btn"
+              aria-label="Open menu"
+              aria-expanded={drawerOpen}
+              aria-controls="sidebar"
+              onClick={() => setDrawerOpen(true)}
+            >
+              <Icon name="menu" size={20} />
+            </button>
+            <NavLink to="/" className="header__brand" aria-label="TravelAid home">
+              <Logo />
+            </NavLink>
+            <nav className="topnav" aria-label="Primary sections">
+              {TOP_NAV.map((item) => (
+                <NavLink key={item.to} to={item.to} end={item.end} className="topnav__link">
+                  {item.label}
+                </NavLink>
+              ))}
+            </nav>
+            <div className="header__actions">
+              <SOSButton compact />
+              <ProfileMenu />
+            </div>
+          </div>
         </header>
 
         <main id="main" className="content" tabIndex={-1}>
