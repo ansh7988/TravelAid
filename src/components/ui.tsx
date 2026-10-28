@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode, AnchorHTMLAttributes } from 'react';
 import { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
@@ -11,12 +12,21 @@ export function Button({
   return <button className={`btn btn--${variant} ${className}`} {...rest} />;
 }
 
-export function LinkButton({
-  variant = 'secondary',
-  className = '',
-  ...rest
-}: AnchorHTMLAttributes<HTMLAnchorElement> & { variant?: Variant }) {
-  return <a className={`btn btn--${variant} ${className}`} {...rest} />;
+type LinkButtonProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> & {
+  variant?: Variant;
+  /** In-app route, for example "/trips/new". Uses client-side navigation. */
+  to?: string;
+  /** Full URL for external links, for example a tel: or https: link. */
+  href?: string;
+};
+
+/** A link styled as a button. Pass `to` for an in-app page, or `href` for anything else. */
+export function LinkButton({ variant = 'secondary', className = '', to, href, ...rest }: LinkButtonProps) {
+  const classes = `btn btn--${variant} ${className}`;
+  if (to !== undefined) {
+    return <Link to={to} className={classes} {...rest} />;
+  }
+  return <a href={href} className={classes} {...rest} />;
 }
 
 export function Card({ children, className = '', as: Tag = 'section' }: { children: ReactNode; className?: string; as?: 'section' | 'article' | 'div' }) {
